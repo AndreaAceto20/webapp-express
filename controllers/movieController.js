@@ -15,5 +15,28 @@ function index(req, res) {
     })
 }
 
+function show(req, res) {
+    const { id } = req.params;
 
-module.exports = { index };
+    const detailMovie = "SELECT * FROM movies WHERE movies.id=?"
+
+    const detailReview = "SELECT * FROM reviews WHERE movie_id=?"
+
+    connection.query(detailMovie, [id], (err, movieResult) => {
+        if (err) res.status(500).json({ error: "Failed to show the movie" })
+        if (movieResult.length === 0) return res.status(404).json({ error: "Movie not found" })
+
+
+        const movie = movieResult[0];
+
+        connection.query(detailReview, [id], (err, reviewResult) => {
+            if (err) res.status(500).json({ error: "Failed to show the reviews" })
+
+            movie.review = reviewResult;
+
+            res.json(movie)
+        })
+    })
+}
+
+module.exports = { index, show };
