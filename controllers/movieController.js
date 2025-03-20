@@ -39,24 +39,29 @@ function show(req, res) {
     })
 }
 
-// function storeReview(req, res) {
+function store(req, res, next) {
 
+    const { title, director, abstract } = req.body;
 
-//     const { id } = req.params;
+    const imageName = `${req.file.filename}`;
 
+    const query = 'INSERT INTO movies (title, director, abstract , image) VALUES (?, ?, ?, ?)'
 
-//     const { text, name, vote } = req.body;
+    connection.query(query,
+        [title, director, abstract, imageName],
+        (err, result) => {
+            if (err) {
+                console.log(err)
+                return next(new Error("Errore interno del server"))
+            }
 
-//     const insertReviewSql = 'INSERT INTO reviews (text, name, vote, movie_id) VALUES (?, ?, ?, ?)'
-
-
-//     connection.query(insertReviewSql, [text, name, vote, id], (err, results) => {
-//         if (err) return res.status(500).json({ error: 'Database query failed' });
-//         res.status(201);
-//         res.json({ message: 'Review added', id: results.insertId });
-//     });
-
-// }
+            res.status(201).json({
+                status: "succes",
+                message: "Movie creato con successo",
+            });
+        }
+    )
+}
 
 function storeReview(req, res) {
 
@@ -72,4 +77,4 @@ function storeReview(req, res) {
         res.json({ message: 'Review added', id: results.insertId });
     });
 }
-module.exports = { index, show, storeReview };
+module.exports = { index, show, storeReview, store };
